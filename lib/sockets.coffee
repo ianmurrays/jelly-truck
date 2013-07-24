@@ -17,3 +17,4 @@ module.exports = class Sockets
         socket_id: socket.socketId
 
   triggerEvent: (event, channel, data) -> @wss.triggerEvent(event, channel, data)
+  
