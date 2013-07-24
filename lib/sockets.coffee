@@ -2,8 +2,9 @@ WSAdapter  = require './adapters/ws/ws'
 _          = require 'underscore'
 
 module.exports = class Sockets
-  constructor: (port = 8080, adapter) ->
-    @wss = new adapter(port)
+  constructor: (port = 8080, adapter, @appId, @appKey, @appSecret) ->
+    console.log "Initializing Websockets Server at 0.0.0.0:#{@port}"
+    @wss = new adapter(@port)
 
     _.bindAll this, 'onConnect'
 
@@ -17,4 +18,3 @@ module.exports = class Sockets
         socket_id: socket.socketId
 
   triggerEvent: (event, channel, data) -> @wss.triggerEvent(event, channel, data)
-  

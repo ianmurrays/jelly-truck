@@ -12,7 +12,6 @@ module.exports = class WSAdapter extends EventEmitter
     console.log message
 
   constructor: (@port = 8080, @debugging = on) ->
-    console.log "Initializing ws at port #{@port}"
     @wss = new WebSocketServer(port: @port)
 
     # Bind all event methods to this

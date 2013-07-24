@@ -2,6 +2,7 @@ express = require('express')
 
 module.exports = class APIServer
   constructor: (@adapter, @port = 4567) ->
+    console.log "Initializing API Server at 0.0.0.0:#{@port}"
     @api = express()
     @api.listen(@port)
 
@@ -15,7 +16,7 @@ module.exports = class APIServer
       res.sendfile(__dirname + '/pusher-2.1.js')
 
     # Event triggering api 
-    @api.post '/apps/pusherKey/events', (req, res) =>
+    @api.post "/apps/#{@adapter.appId}/events", (req, res) =>
       # Just post whatever to test
       @adapter.triggerEvent "testevent", "testchannel", {message: "hola"}
       res.send(200)

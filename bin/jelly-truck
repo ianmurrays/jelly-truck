@@ -1,0 +1,61 @@
+#!/usr/bin/env coffee
+
+program = require "commander"
+fs      = require "fs"
+
+version = JSON.parse(fs.readFileSync(__dirname + '/../package.json', 'utf8')).version
+program
+  .version(version)
+  .usage('[options]')
+  .option('-a, --app_id', 'app id (required)')
+  .option('-k, --app_key', 'app key (required)')
+  .option('-s, --app_secret', 'app secret (required)')
+  .option('-w, --websocket_port', 'websocket server port (default: 8080)', parseInt)
+  .option('-p, --api_port', 'api server port (default: 4567)', parseInt)
+  .parse(process.argv)
+
+unless program.app_id and program.app_key and program.app_secret
+  program.help()
+
+# Set defaults
+program.websocket_port ||= 8080
+program.api_port       ||= 4567
+
+Sockets    = require '../lib/sockets'
+WSAdapter  = require '../lib/adapters/ws/ws'
+Api        = require '../lib/api'
+
+# Print giant Truck
+console.log "                                     .=+..+.,+ .        "
+console.log "                                 .+:,.~,.~,,:,.:..=. .  "
+console.log "                             .?+,,~,.:,,,,,,:,,=,.+,.+.."
+console.log "                          :.,.,,.~..+,,=,,:,,,:,.~+++I.."
+console.log "                         .,,,,,:,,,:,,=,,=,,,,=?+I~III  "
+console.log "                         .$$$$:,,,,::,,~,,:===~?~==~+~. "
+console.log "                         .$?Z$$$$$?,,,,:===???~~~~~===. "
+console.log "                      . ..$7ZZZZ$$$$$$Z??????~~~~=~~~=. "
+console.log "                     ..~::+=D8OZZZZZZ$$???I?:~~~:,,==,.."
+console.log "                . ..==~~~~++++++D8OZZ$$????~~~,:~:~==.  "
+console.log "                 :I+~~~~~~==++++++++8OZ??=?~~~::~,~:=.  "
+console.log "                .:.?=++~~~~~~~==++++=?O??~=~~~:~::===.  "
+console.log "                .:~~+~?+=+8=~~~===??D?8??=~~~~~~=++?    "
+console.log "                .$.7=+==++8+=+=?$O?Z8I8??I==~,,=7DD8.   "
+console.log "                .7IN7ZO7+I7777+$7$?8D78??I~~~++DD:8N.   "
+console.log "                .~~~OI87ZZ$$O8ZOO8+??$8???~INNDO~D7+.   "
+console.log "                .?++++++NIDO7IOO?O???$8I?$,+8NNDD.8+,.  "
+console.log "                .+7O=+++++==~?O?????~=D?+?IOZ$$OZ?:..   "
+console.log "                 D8D77O++++==+???=~~8$DD$OZ7II+~,..     "
+console.log "                 .,888DO$Z+?++ZI~+DZN88Z$7I?+:,.        "
+console.log "                 .~IZ88888+$$ZI=~DDOZ$III?=:..          "
+console.log "                  .,~?7Z88D=88I888$I$I?+=:..            "
+console.log "                    ..,:+7ZOO8DD88O$7=,...              "
+console.log "                        ..:=I7I7OND?:,.                 "
+console.log "                           .........                    "
+console.log ""
+
+
+# Initialize Websockets server, with the websockets adapter
+ws = new Sockets(program.websocket_port, WSAdapter, program.app_id, program.app_key, program.app_secret)
+
+# Initialize API
+api = new Api(ws, program.api_port)
