@@ -1,0 +1,68 @@
+<!-- <script src="//localhost:8080/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost:8080');
+  socket.on('pusher:connection_established', function(data) {
+    console.log(data);
+  });
+
+  socket.on('news', function (data) {
+    console.log(data);
+  });
+</script> -->
+
+<!-- <script src="//localhost:4567/pusher.js"></script> -->
+<script src="http://js.pusher.com/1.9/pusher.js"></script>
+<script>
+  // var config = {
+  //   wsHost:    'localhost', 
+  //   wsPort:    8080,
+  //   httpHost:  'localhost',
+  //   httpPort:  8080,
+  //   httpPath:  '/app/pusherKey',
+  //   disableStats: true
+  // };
+
+  // var pusher = new Pusher('pusherKey', config);
+  Pusher.host = "localhost";
+  Pusher.ws_port = 8080;
+  var pusher = new Pusher('pusherKey');
+
+  pusher.connection.bind('connected', function() {
+    console.log("Connected");
+  });
+
+  pusher.connection.bind('unavailable', function() {
+    console.log("Unavailable");
+  });
+
+  pusher.connection.bind('failed', function() {
+    console.log("Failed");
+  });
+
+  pusher.connection.bind('disconnected', function() {
+    console.log("Disconnected");
+  });
+
+  pusher.bind("pusher:ian_event", function(data) {
+    console.log(data);
+  });
+
+  var channel = pusher.subscribe('testchannel');
+  channel.bind('testevent', function(data) {
+    console.log(data);
+  });
+</script>
+
+<!-- <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+<script>
+   var sock = new SockJS('http://localhost:8080/app/pusherKey');
+   sock.onopen = function() {
+       console.log('open');
+   };
+   sock.onmessage = function(e) {
+       console.log('message', e.data);
+   };
+   sock.onclose = function() {
+       console.log('close');
+   };
+</script> -->
