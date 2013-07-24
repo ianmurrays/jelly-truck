@@ -3,7 +3,7 @@ _          = require 'underscore'
 
 module.exports = class Sockets
   constructor: (port = 8080, adapter, @appId, @appKey, @appSecret) ->
-    console.log "Initializing Websockets Server at 0.0.0.0:#{@port}"
+    console.log "Initializing Websockets Server at 0.0.0.0:#{port}"
     @wss = new adapter(@port)
 
     _.bindAll this, 'onConnect'
