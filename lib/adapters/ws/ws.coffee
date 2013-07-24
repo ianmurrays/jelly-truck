@@ -5,13 +5,12 @@ WebSocketServer = require("ws").Server
 Socket          = require "./socket"
 
 module.exports = class WSAdapter extends EventEmitter
-  channels: {}
-
   log: (message) ->
     return unless @debugging
     console.log message
 
   constructor: (@port = 8080, @debugging = on) ->
+    @channels = {}
     @wss = new WebSocketServer(port: @port)
 
     # Bind all event methods to this

@@ -16,7 +16,8 @@ module.exports = class APIServer
       res.sendfile(__dirname + '/pusher-2.1.js')
 
     # Event triggering api 
+    # console.log "/apps/#{@adapter.appId}/events"
     @api.post "/apps/#{@adapter.appId}/events", (req, res) =>
       # Just post whatever to test
-      @adapter.triggerEvent "testevent", "testchannel", {message: "hola"}
+      @adapter.triggerEvent "female", "login.adult", {message: "hola"}
       res.send(200)

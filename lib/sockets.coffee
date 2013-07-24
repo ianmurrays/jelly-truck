@@ -11,7 +11,7 @@ module.exports = class Sockets
     @wss.on 'adapter:connected', @onConnect
 
   onConnect: (socket) ->
-    console.log "Adapter connected"
+    console.log "  [#{socket.socketId}] Socket connection established"
     socket.write 
       event: "pusher:connection_established"
       data:
