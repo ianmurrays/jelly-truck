@@ -37,16 +37,42 @@ module.exports = class Socket extends EventEmitter
     console.log "< [#{@socketId}] #{json}"
     @socket.send(json)
 
+  sendError: (code, message) ->
+    @write 
+      event: "pusher:error"
+      data:
+        code: code
+        message: message
+
+  triggerEvent: (event, channel, data) ->
+    @write
+      event: event
+      channel: channel
+      data: data
+
+  validateChannelName: (name) -> name.match(/^[a-z0-9\_\-\=\@\,\.\;]+$/i) != null
+
   ############ PUSHER EVENTS ############
 
   pusher_subscribe: (data) ->
-    @channels.push(data.channel)
-    @adapter.subscribe(this, data.channel)
+    if @validateChannelName(data.channel)
+      @channels.push(data.channel)
+      @adapter.subscribe(this, data.channel)
 
-    console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
+      @triggerEvent "pusher_internal:subscription_succeeded", data.channel, {}
+
+      console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
+    else
+      @sendError null, "Invalid channel name '#{data.channel}'"
 
   pusher_unsubscribe: (data) ->
-    delete _.indexOf(@channels, data.channel)
-    @adapter.unsubscribe(this, data.channel)
+    index = _.indexOf(@channels, data.channel)
 
-    console.log "  [#{@socketId}] Unsubscribed from channel #{data.channel}"
+    if index != -1
+      @channels.splice(index, 1)
+      @adapter.unsubscribe(this, data.channel)
+
+      console.log "  [#{@socketId}] Unsubscribed from channel #{data.channel}"
+    else
+      @sendError null, "No current subscription to channel #{data.channel}, or subscription in progress"
+

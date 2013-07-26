@@ -23,11 +23,8 @@ module.exports = class WSAdapter extends EventEmitter
   triggerEvent: (event, channel, data) ->
     return unless @channels[channel]
     for subscriber in @channels[channel]
-      subscriber.write
-        event: event
-        channel: channel
-        data: data
-      
+      subscriber.triggerEvent event, channel, data
+        
   subscribe: (subscriber, channel) ->
     @channels[channel] ||= []
 

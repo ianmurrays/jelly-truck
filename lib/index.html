@@ -25,32 +25,24 @@
   // var pusher = new Pusher('pusherKey', config);
   Pusher.host = "localhost";
   Pusher.ws_port = 8080;
+
+  Pusher.log = function(message) {
+    if (window.console && window.console.log) {
+      window.console.log(message);
+    }
+  };
+
   var pusher = new Pusher('abogado');
-
-  pusher.connection.bind('connected', function() {
-    console.log("Connected");
-  });
-
-  pusher.connection.bind('unavailable', function() {
-    console.log("Unavailable");
-  });
-
-  pusher.connection.bind('failed', function() {
-    console.log("Failed");
-  });
-
-  pusher.connection.bind('disconnected', function() {
-    console.log("Disconnected");
-  });
-
-  pusher.bind("pusher:ian_event", function(data) {
-    console.log(data);
-  });
 
   var channel = pusher.subscribe('testchannel');
   channel.bind('testevent', function(data) {
     console.log(data);
   });
+
+  setTimeout(function() {
+    pusher.unsubscribe('testchanndsel');
+  }, 2000);
+  
 </script>
 
 <!-- <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
