@@ -1,5 +1,5 @@
 {
-  "name": "pusher-node",
+  "name": "jelly-truck",
   "description": "Pusher clone in node",
   "version": "0.0.1",
   "dependencies": {
@@ -9,5 +9,6 @@
     "underscore": "1.5.x",
     "commander": "2.0.0",
     "rbytes": "1.0.0"
-  }
+  },
+  "bin": "./bin/jelly-truck"
 }

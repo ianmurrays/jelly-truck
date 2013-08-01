@@ -19,7 +19,8 @@
   //   httpHost:  'localhost',
   //   httpPort:  8080,
   //   httpPath:  '/app/pusherKey',
-  //   disableStats: true
+  //   disableStats: true,
+  //   authEndpoint: '/pusher_auth_test'
   // };
 
   // var pusher = new Pusher('pusherKey', config);
@@ -32,16 +33,18 @@
     }
   };
 
+  Pusher.channel_auth_endpoint = "/pusher_auth_test";
   var pusher = new Pusher('abogado');
 
-  var channel = pusher.subscribe('testchannel');
+  var channel = pusher.subscribe('private-testchannel');
   channel.bind('testevent', function(data) {
     console.log(data);
   });
 
-  setTimeout(function() {
-    pusher.unsubscribe('testchanndsel');
-  }, 2000);
+  // Test error when removing subscription to unexisting channel
+  // setTimeout(function() {
+  //   pusher.unsubscribe('testchanndsel');
+  // }, 2000);
   
 </script>
 

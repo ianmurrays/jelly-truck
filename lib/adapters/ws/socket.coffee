@@ -56,12 +56,15 @@ module.exports = class Socket extends EventEmitter
 
   pusher_subscribe: (data) ->
     if @validateChannelName(data.channel)
-      @channels.push(data.channel)
-      @adapter.subscribe(this, data.channel)
+      [result, error] = @adapter.subscribe(this, data) # This could fail due to invalid auth signature
+      if result
+        @channels.push(data.channel)
+        @triggerEvent "pusher_internal:subscription_succeeded", data.channel, {}
 
-      @triggerEvent "pusher_internal:subscription_succeeded", data.channel, {}
-
-      console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
+        console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
+      else
+        @sendError null, error
+        console.log "  [#{@socketId}] #{error}"
     else
       @sendError null, "Invalid channel name '#{data.channel}'"
 
@@ -70,7 +73,7 @@ module.exports = class Socket extends EventEmitter
 
     if index != -1
       @channels.splice(index, 1)
-      @adapter.unsubscribe(this, data.channel)
+      @adapter.unsubscribe(this, data)
 
       console.log "  [#{@socketId}] Unsubscribed from channel #{data.channel}"
     else

@@ -1,10 +1,12 @@
 express = require('express')
+crypto  = require('crypto')
 
 module.exports = class APIServer
   constructor: (@adapter, @port = 4567) ->
     console.log "Initializing API Server at 0.0.0.0:#{@port}"
     @api = express()
     @api.listen(@port)
+    @api.use(express.bodyParser())
 
     @_bindMethods()
 
@@ -21,3 +23,12 @@ module.exports = class APIServer
       # Just post whatever to test
       @adapter.triggerEvent "female", "login.adult", {message: "hola"}
       res.send(200)
+
+    @api.post "/pusher_auth_test", (req, res) =>
+      socketId    = req.body.socket_id
+      channelName = req.body.channel_name
+
+      signer = crypto.createHmac 'sha256', @adapter.appSecret
+      result = signer.update("#{socketId}:#{channelName}").digest('hex')
+
+      res.json(auth: "#{@adapter.appKey}:#{result}")
