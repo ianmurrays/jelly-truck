@@ -55,7 +55,7 @@ module.exports = class APIServer
       socketId    = req.body.socket_id
       channelName = req.body.channel_name
       channelData = JSON.stringify
-        user_id: 1
+        user_id: Date.now()
         user_info:
           name: "John Doe"
 

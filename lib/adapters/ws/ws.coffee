@@ -31,6 +31,7 @@ module.exports = class WSAdapter extends EventEmitter
       return validation unless validation[0] # If validation[0] is false, signature is wrong
     else if data.channel.match /^presence\-/i
       validation = @validatePresenceChannelSignature(subscriber.socketId, data)
+      @_notifyMemberAdded(data.channel, subscriber)
 
       return validation unless validation[0] # If validation[0] is false, signature is wrong
     
@@ -49,7 +50,29 @@ module.exports = class WSAdapter extends EventEmitter
 
     return unless index != -1
 
+    if data.channel.match /^presence\-/i
+      @_notifyMemberRemoved data.channel, subscriber
+
     @channels[data.channel].splice(index, 1)
+
+  _notifyMemberAdded: (channel, socket) ->
+    # {"event":"pusher_internal:member_added","data":"{\"user_id\":1376248122960,\"user_info\":{\"name\":\"John Doe\"}}","channel":"presence-test_channel"}
+    return unless @channels[channel] # This could be the first user subscribing to the channel, so there's nobody to notify
+    for subscriber in @channels[channel]
+      # Don't notify the subscribing user
+      if socket.socketId == subscriber.socketId || @_userIdAlreadyPresent(channel, subscriber.channelsInfo[channel]["user_id"], subscriber) 
+        continue
+
+      subscriber.triggerEvent "pusher_internal:member_added", channel, subscriber.channelsInfo[channel]
+
+  _notifyMemberRemoved: (channel, socket) ->
+    # {"event":"pusher_internal:member_removed","data":"{\"user_id\":\"1376248104936\"}","channel":"presence-test_channel"}
+    for subscriber in @channels[channel]
+      # Don't notify the subscribing user
+      if socket.socketId == subscriber.socketId || @_userIdAlreadyPresent(channel, subscriber.channelsInfo[channel]["user_id"], subscriber) 
+        continue
+
+      subscriber.triggerEvent "pusher_internal:member_removed", channel, _.pick(subscriber.channelsInfo[channel], "user_id")
 
   _userIdAlreadyPresent: (channel, user_id, socket) ->
     for subscriber in @channels[channel]

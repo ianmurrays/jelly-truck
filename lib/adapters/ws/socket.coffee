@@ -32,12 +32,13 @@ module.exports = class Socket extends EventEmitter
     console.log "  [#{@socketId}] Connection closed"
     for channel in @channels
       console.log "  [#{@socketId}] Removing subscription from #{channel}"
+      
+      # Call this first so we can trigger all events
+      @adapter.unsubscribe(this, {channel: channel})
 
       index = _.indexOf(@channels, channel)
       @channels.splice(index, 1) unless index == -1
       delete @channelsInfo[channel]
-      
-      @adapter.unsubscribe(this, {channel: channel})
       
   # Public: writes an object as stringified JSON
   write: (object) ->
