@@ -62,21 +62,23 @@ module.exports = class Socket extends EventEmitter
   validateChannelName: (name) -> name.match(/^[a-z0-9\_\-\=\@\,\.\;]+$/i) != null
 
   updateChannelInfo: (channel, data) -> 
-    @channelsInfo[channel] = JSON.parse(data)
+    @channelsInfo[channel] = JSON.parse(data) if data
 
   ############ PUSHER EVENTS ############
 
   pusher_subscribe: (data) ->
     if @validateChannelName(data.channel)
+      @updateChannelInfo(data.channel, data.channel_data)
+
       [result, error] = @adapter.subscribe(this, data) # This could fail due to invalid auth signature
       if result
         @channels.push(data.channel)
-        @updateChannelInfo(data.channel, data.channel_data)
   
         @triggerEvent "pusher_internal:subscription_succeeded", data.channel, @adapter.channelInfo(data.channel, this)
 
         console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
       else
+        delete @channelsInfo[channel]
         @sendError null, error
         console.log "  [#{@socketId}] #{error}"
     else

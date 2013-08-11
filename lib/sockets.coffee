@@ -8,13 +8,13 @@ module.exports = class Sockets
     console.log "Initializing Websockets Server at 0.0.0.0:#{port}"
     @wss = new adapter(@port, @appKey, @appSecret)
 
-    _.bindAll this, 'onConnect', 'onChannelVacated', 'onChannelOccupied'
+    _.bindAll this, 'onConnect', 'onChannelVacated', 'onChannelOccupied', 'onMemberAdded', 'onMemberRemoved'
 
     @wss.on 'adapter:connected',        @onConnect
     @wss.on 'adapter:channel_occupied', @onChannelOccupied
     @wss.on 'adapter:channel_vacated',  @onChannelVacated
-    # @wss.on 'adapter:member_added',     @onMemberAdded
-    # @wss.on 'adapter:member_removed',   @onMemberRemoved
+    @wss.on 'adapter:member_added',     @onMemberAdded
+    @wss.on 'adapter:member_removed',   @onMemberRemoved
 
   onConnect: (socket) ->
     console.log "  [#{socket.socketId}] Socket connection established"
@@ -61,3 +61,15 @@ module.exports = class Sockets
     @_postWebHook
       name: "channel_vacated"
       channel: channel
+
+  onMemberAdded: (channel, userId) ->
+    @_postWebHook
+      name: "member_added"
+      channel: channel,
+      user_id: userId
+
+  onMemberRemoved: (channel, userId) ->
+    @_postWebHook
+      name: "member_removed"
+      channel: channel,
+      user_id: userId

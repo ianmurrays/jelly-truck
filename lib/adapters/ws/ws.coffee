@@ -43,7 +43,6 @@ module.exports = class WSAdapter extends EventEmitter
       @channels[data.channel].push subscriber
 
     if @channels[data.channel].length > 0
-      console.log "ocupado"
       @emit 'adapter:channel_occupied', data.channel
 
     return [true, null]
@@ -65,6 +64,8 @@ module.exports = class WSAdapter extends EventEmitter
       @emit 'adapter:channel_vacated', data.channel
 
   _notifyMemberAdded: (channel, socket) ->
+    @emit "adapter:member_added", channel, socket.channelsInfo[channel]["user_id"]
+
     # {"event":"pusher_internal:member_added","data":"{\"user_id\":1376248122960,\"user_info\":{\"name\":\"John Doe\"}}","channel":"presence-test_channel"}
     return unless @channels[channel] # This could be the first user subscribing to the channel, so there's nobody to notify
     for subscriber in @channels[channel]
@@ -75,6 +76,8 @@ module.exports = class WSAdapter extends EventEmitter
       subscriber.triggerEvent "pusher_internal:member_added", channel, subscriber.channelsInfo[channel]
 
   _notifyMemberRemoved: (channel, socket) ->
+    @emit "adapter:member_removed", channel, socket.channelsInfo[channel]["user_id"]
+
     # {"event":"pusher_internal:member_removed","data":"{\"user_id\":\"1376248104936\"}","channel":"presence-test_channel"}
     for subscriber in @channels[channel]
       # Don't notify the subscribing user
