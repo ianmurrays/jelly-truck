@@ -31,15 +31,20 @@ module.exports = class WSAdapter extends EventEmitter
       return validation unless validation[0] # If validation[0] is false, signature is wrong
     else if data.channel.match /^presence\-/i
       validation = @validatePresenceChannelSignature(subscriber.socketId, data)
-      @_notifyMemberAdded(data.channel, subscriber)
 
       return validation unless validation[0] # If validation[0] is false, signature is wrong
-    
+
+      @_notifyMemberAdded(data.channel, subscriber)
+
     @channels[data.channel] ||= []
 
     # Don't add subscriber if already there
-    if _.indexOf(@channels, subscriber) == -1
+    if _.indexOf(@channels[data.channel], subscriber) == -1
       @channels[data.channel].push subscriber
+
+    if @channels[data.channel].length > 0
+      console.log "ocupado"
+      @emit 'adapter:channel_occupied', data.channel
 
     return [true, null]
 
@@ -54,6 +59,10 @@ module.exports = class WSAdapter extends EventEmitter
       @_notifyMemberRemoved data.channel, subscriber
 
     @channels[data.channel].splice(index, 1)
+
+    # Webhooks
+    if @channels[data.channel].length == 0
+      @emit 'adapter:channel_vacated', data.channel
 
   _notifyMemberAdded: (channel, socket) ->
     # {"event":"pusher_internal:member_added","data":"{\"user_id\":1376248122960,\"user_info\":{\"name\":\"John Doe\"}}","channel":"presence-test_channel"}

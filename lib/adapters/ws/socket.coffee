@@ -62,7 +62,6 @@ module.exports = class Socket extends EventEmitter
   validateChannelName: (name) -> name.match(/^[a-z0-9\_\-\=\@\,\.\;]+$/i) != null
 
   updateChannelInfo: (channel, data) -> 
-    console.log "updating channel info #{channel} #{data}"
     @channelsInfo[channel] = JSON.parse(data)
 
   ############ PUSHER EVENTS ############

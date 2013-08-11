@@ -12,6 +12,7 @@ program
   .option('-s, --app_secret <app_secret>', 'app secret (required)')
   .option('-w, --websocket_port <websocket_port>', 'websocket server port (default: 8080)', parseInt)
   .option('-p, --api_port <api_port>', 'api server port (default: 4567)', parseInt)
+  .option('--web_hook <web_hook>', 'webhooks endpoint (optional)')
   .parse(process.argv)
 
 unless program.app_id and program.app_key and program.app_secret
@@ -46,7 +47,7 @@ console.log """
 
 
 # Initialize Websockets server, with the websockets adapter
-ws = new Sockets(program.websocket_port, WSAdapter, program.app_id, program.app_key, program.app_secret)
+ws = new Sockets(program.websocket_port, WSAdapter, program.app_id, program.app_key, program.app_secret, program.web_hook)
 
 # Initialize API
 api = new Api(ws, program.api_port)

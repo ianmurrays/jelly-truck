@@ -20,6 +20,10 @@ module.exports = class APIServer
     @api.get '/pusher.js', (req, res) -> 
       res.sendfile(__dirname + '/pusher-2.1.js')
 
+    @api.post '/webhooks_test', (req, res) ->
+      console.log req.body
+      res.send(200)
+
     # Event triggering api 
     # console.log "/apps/#{@adapter.appId}/events"
     @api.post "/apps/#{@adapter.appId}/events", (req, res) =>
