@@ -51,7 +51,14 @@ module.exports = class WSAdapter extends EventEmitter
 
     @channels[data.channel].splice(index, 1)
 
-  channelInfo: (channel) ->
+  _userIdAlreadyPresent: (channel, user_id, socket) ->
+    for subscriber in @channels[channel]
+      if subscriber.socketId != socket.socketId && subscriber.channelsInfo[channel]["user_id"] == user_id
+        return yes
+
+    return no
+
+  channelInfo: (channel, socket) ->
     if channel.match /^presence\-/i
       # Fetch all members info
       info = 
@@ -60,6 +67,10 @@ module.exports = class WSAdapter extends EventEmitter
         hash: {}
 
       for subscriber in @channels[channel]
+        # Skip duplicate connections if same user.
+        if subscriber.socketId != socket.socketId && @_userIdAlreadyPresent(channel, subscriber.channelsInfo[channel]["user_id"], subscriber) 
+          continue
+
         info.count += 1
         info.ids.push subscriber.channelsInfo[channel]["user_id"]
         info.hash[subscriber.channelsInfo[channel]["user_id"]] = subscriber.channelsInfo[channel]["user_info"]

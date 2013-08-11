@@ -73,7 +73,7 @@ module.exports = class Socket extends EventEmitter
         @channels.push(data.channel)
         @updateChannelInfo(data.channel, data.channel_data)
   
-        @triggerEvent "pusher_internal:subscription_succeeded", data.channel, @adapter.channelInfo(data.channel)
+        @triggerEvent "pusher_internal:subscription_succeeded", data.channel, @adapter.channelInfo(data.channel, this)
 
         console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
       else

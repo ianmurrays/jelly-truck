@@ -40,7 +40,7 @@ module.exports = class APIServer
       socketId    = req.body.socket_id
       channelName = req.body.channel_name
       channelData = JSON.stringify
-        user_id: 1
+        user_id: Date.now()
         user_info:
           name: "John Doe"
 
@@ -50,3 +50,18 @@ module.exports = class APIServer
 
       res.json(auth: "#{@adapter.appKey}:#{result}", channel_data: channelData)
       # res.json(auth: "f97381306669f7ca9ab7:#{result}", channel_data: channelData)
+
+    @api.post "/pusher_auth_test_presence_for_pusher", (req, res) =>
+      socketId    = req.body.socket_id
+      channelName = req.body.channel_name
+      channelData = JSON.stringify
+        user_id: 1
+        user_info:
+          name: "John Doe"
+
+      # signer = crypto.createHmac 'sha256', @adapter.appSecret
+      signer = crypto.createHmac 'sha256', "00d1561e00b340cdbe40" # @adapter.appSecret
+      result = signer.update("#{socketId}:#{channelName}:#{channelData}").digest('hex')
+
+      # res.json(auth: "#{@adapter.appKey}:#{result}", channel_data: channelData)
+      res.json(auth: "f97381306669f7ca9ab7:#{result}", channel_data: channelData)
