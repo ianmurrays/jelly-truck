@@ -5,6 +5,10 @@ rbytes         = require "rbytes"
 module.exports = class Socket extends EventEmitter
   constructor: (@adapter, @socket) ->
     @channels = []
+
+    # Holds user info for each presence channel
+    @channelsInfo = {}
+
     @socketId = rbytes.randomBytes(16).toHex()
 
     _.bindAll this, 'onMessage', 'onClose', 'write'
@@ -28,8 +32,12 @@ module.exports = class Socket extends EventEmitter
     console.log "  [#{@socketId}] Connection closed"
     for channel in @channels
       console.log "  [#{@socketId}] Removing subscription from #{channel}"
-      delete _.indexOf(@channels, channel)
-      @adapter.unsubscribe(this, channel)
+
+      index = _.indexOf(@channels, channel)
+      @channels.splice(index, 1) unless index == -1
+      delete @channelsInfo[channel]
+      
+      @adapter.unsubscribe(this, {channel: channel})
       
   # Public: writes an object as stringified JSON
   write: (object) ->
@@ -52,6 +60,10 @@ module.exports = class Socket extends EventEmitter
 
   validateChannelName: (name) -> name.match(/^[a-z0-9\_\-\=\@\,\.\;]+$/i) != null
 
+  updateChannelInfo: (channel, data) -> 
+    console.log "updating channel info #{channel} #{data}"
+    @channelsInfo[channel] = JSON.parse(data)
+
   ############ PUSHER EVENTS ############
 
   pusher_subscribe: (data) ->
@@ -59,7 +71,9 @@ module.exports = class Socket extends EventEmitter
       [result, error] = @adapter.subscribe(this, data) # This could fail due to invalid auth signature
       if result
         @channels.push(data.channel)
-        @triggerEvent "pusher_internal:subscription_succeeded", data.channel, {}
+        @updateChannelInfo(data.channel, data.channel_data)
+  
+        @triggerEvent "pusher_internal:subscription_succeeded", data.channel, @adapter.channelInfo(data.channel)
 
         console.log "  [#{@socketId}] Subscribed to channel #{data.channel}"
       else
@@ -73,6 +87,7 @@ module.exports = class Socket extends EventEmitter
 
     if index != -1
       @channels.splice(index, 1)
+      delete @channelsInfo[data.channel]
       @adapter.unsubscribe(this, data)
 
       console.log "  [#{@socketId}] Unsubscribed from channel #{data.channel}"

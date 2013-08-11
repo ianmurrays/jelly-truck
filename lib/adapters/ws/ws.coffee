@@ -26,10 +26,14 @@ module.exports = class WSAdapter extends EventEmitter
   subscribe: (subscriber, data) ->
     if data.channel.match /^private\-/i
       # Validate the signature
-      validation = @validatePrivateChannelSignature(subscriber.socketId, data.channel, data.auth)
+      validation = @validatePrivateChannelSignature(subscriber.socketId, data)
 
       return validation unless validation[0] # If validation[0] is false, signature is wrong
-        
+    else if data.channel.match /^presence\-/i
+      validation = @validatePresenceChannelSignature(subscriber.socketId, data)
+
+      return validation unless validation[0] # If validation[0] is false, signature is wrong
+    
     @channels[data.channel] ||= []
 
     # Don't add subscriber if already there
@@ -47,21 +51,56 @@ module.exports = class WSAdapter extends EventEmitter
 
     @channels[data.channel].splice(index, 1)
 
-  # Returns [bool, errorMessage]
-  validatePrivateChannelSignature: (socketId, channel, authString) ->
+  channelInfo: (channel) ->
+    if channel.match /^presence\-/i
+      # Fetch all members info
+      info = 
+        count: 0
+        ids: []
+        hash: {}
+
+      for subscriber in @channels[channel]
+        info.count += 1
+        info.ids.push subscriber.channelsInfo[channel]["user_id"]
+        info.hash[subscriber.channelsInfo[channel]["user_id"]] = subscriber.channelsInfo[channel]["user_info"]
+
+      return {presence: info}
+    else
+      return {}
+
+  _validateSignature: (socketId, data, presence = no) ->
+    channel     = data.channel
+    authString  = data.auth
+    channelData = data.channel_data
+
+    try
+      parsedChannelData = JSON.parse(channelData)
+    catch e
+      return [false, "channel_data is not valid encoded JSON"]
+
+    signatureString = if presence then "#{socketId}:#{channel}:#{channelData}" else "#{socketId}:#{channel}"
+
     [appKey, signature] = authString.split(":")
 
     if appKey != @appKey
       return [false, "Invalid key '#{appKey}"]
+    else if presence && ! parsedChannelData["user_id"]
+      return [false, "channel_data must include a user_id when subscribing to presence channels (#{channel})"]
     else
       # Calculate the signature ourselves
       signer = crypto.createHmac 'sha256', @appSecret
-      result = signer.update("#{socketId}:#{channel}").digest('hex')
+      result = signer.update(signatureString).digest('hex')
 
       if signature != result
-        return [false, "Invalid signature: Expected HMAC SHA256 hex digest of #{socketId}:#{channel}, but got #{signature}"]
+        return [false, "Invalid signature: Expected HMAC SHA256 hex digest of #{signatureString}, but got #{signature}"]
 
     return [true, null]
+
+  # Returns [bool, errorMessage]
+  validatePrivateChannelSignature: (socketId, data) -> @_validateSignature(socketId, data)
+
+  # Returns [bool, errorMessage]
+  validatePresenceChannelSignature: (socketId, data) -> @_validateSignature(socketId, data, yes)
 
   ############### Event Handlers ###############
 

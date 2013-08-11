@@ -33,10 +33,10 @@
     }
   };
 
-  Pusher.channel_auth_endpoint = "/pusher_auth_test";
+  Pusher.channel_auth_endpoint = "/pusher_auth_test_presence";
   var pusher = new Pusher('abogado');
 
-  var channel = pusher.subscribe('private-testchannel');
+  var channel = pusher.subscribe('presence-testchannel');
   channel.bind('testevent', function(data) {
     console.log(data);
   });
