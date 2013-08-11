@@ -25,33 +25,24 @@ Sockets    = require '../lib/sockets'
 WSAdapter  = require '../lib/adapters/ws/ws'
 Api        = require '../lib/api'
 
-# Print giant Truck
-console.log "                                     .=+..+.,+ .        "
-console.log "                                 .+:,.~,.~,,:,.:..=. .  "
-console.log "                             .?+,,~,.:,,,,,,:,,=,.+,.+.."
-console.log "                          :.,.,,.~..+,,=,,:,,,:,.~+++I.."
-console.log "                         .,,,,,:,,,:,,=,,=,,,,=?+I~III  "
-console.log "                         .$$$$:,,,,::,,~,,:===~?~==~+~. "
-console.log "                         .$?Z$$$$$?,,,,:===???~~~~~===. "
-console.log "                      . ..$7ZZZZ$$$$$$Z??????~~~~=~~~=. "
-console.log "                     ..~::+=D8OZZZZZZ$$???I?:~~~:,,==,.."
-console.log "                . ..==~~~~++++++D8OZZ$$????~~~,:~:~==.  "
-console.log "                 :I+~~~~~~==++++++++8OZ??=?~~~::~,~:=.  "
-console.log "                .:.?=++~~~~~~~==++++=?O??~=~~~:~::===.  "
-console.log "                .:~~+~?+=+8=~~~===??D?8??=~~~~~~=++?    "
-console.log "                .$.7=+==++8+=+=?$O?Z8I8??I==~,,=7DD8.   "
-console.log "                .7IN7ZO7+I7777+$7$?8D78??I~~~++DD:8N.   "
-console.log "                .~~~OI87ZZ$$O8ZOO8+??$8???~INNDO~D7+.   "
-console.log "                .?++++++NIDO7IOO?O???$8I?$,+8NNDD.8+,.  "
-console.log "                .+7O=+++++==~?O?????~=D?+?IOZ$$OZ?:..   "
-console.log "                 D8D77O++++==+???=~~8$DD$OZ7II+~,..     "
-console.log "                 .,888DO$Z+?++ZI~+DZN88Z$7I?+:,.        "
-console.log "                 .~IZ88888+$$ZI=~DDOZ$III?=:..          "
-console.log "                  .,~?7Z88D=88I888$I$I?+=:..            "
-console.log "                    ..,:+7ZOO8DD88O$7=,...              "
-console.log "                        ..:=I7I7OND?:,.                 "
-console.log "                           .........                    "
-console.log ""
+# Print giant Truck (by http://www.geocities.com/spunk1111/transp.htm)
+console.log """
+
+
+    _______________________________________________
+   |                                               | |\\
+   |                                               | ||
+   |                                               |,""---:___
+   |                                               ||==  | .-.|
+   |                                               ||==  | '-'-----.
+   |_______________________________________________||    |~  |   -(|
+     |_____________________________/<  _...==...____|    |   | ___ |
+       \\\\ .-.  .-. //            \\|  \\//.-.  .-.\\\\ --------"-"/.-.\\_]
+        `( o )( o )'              '    ( o )( o )`\"\"\"\"\"\"\"\"\"==`( o )
+          '-'  '-'                      '-'  '-'               '-'
+
+
+"""
 
 
 # Initialize Websockets server, with the websockets adapter
