@@ -6,11 +6,67 @@ module.exports = class APIServer
     console.log "Initializing API Server at 0.0.0.0:#{@port}"
     @api = express()
     @api.listen(@port)
+
     @api.use(express.bodyParser())
 
     @_bindMethods()
 
   _bindMethods: ->
+    # Event triggering api 
+    @api.post "/apps/#{@adapter.appId}/events", (req, res) =>
+      # Check authentication signature
+      signature     = req.query.auth_signature
+      authKey       = req.query.auth_key
+      authTimestamp = req.query.auth_timestamp
+      authVersion   = req.query.auth_version
+      bodyMD5       = req.query.body_md5
+
+      if authKey != @adapter.appKey
+        return res.send(401) 
+
+      # NOT CALCULATING MD5 UNTIL WE FIND A SIMPLE WAY TO GET
+      # THE RAW BODY 
+      #  
+      # # Calculate the actual body md5
+      # md5Signer     = crypto.createHash 'md5'
+      # actualBodyMD5 = md5Signer.update(req.rawBody).digest('hex')
+
+      # if bodyMD5 != actualBodyMD5
+      #   return res.send(401) 
+
+      # Generate our own signature and check
+      stringToSign =  "POST"
+      stringToSign += "\n/apps/#{@adapter.appId}/events"
+      stringToSign += "\nauth_key=#{authKey}"
+      stringToSign += "&auth_timestamp=#{authTimestamp}"
+      stringToSign += "&auth_version=#{authVersion}"
+      stringToSign += "&body_md5=#{bodyMD5}"
+
+      signer = crypto.createHmac 'sha256', @adapter.appSecret
+      result = signer.update(stringToSign).digest('hex')
+
+      if result != signature
+        return res.send(401, "Invalid signature: Expected HMAC SHA256 hex digest of #{stringToSign}, but got #{signature}")
+
+      # Trigger the event, signature is good
+      if req.body.channel
+        req.body.channels = [req.body.channel]
+
+      try
+        parsedData = JSON.parse(req.body.data)
+      catch e
+        res.send(400, "Invalid JSON in data parameter: #{req.body.data}")
+        return
+      
+      for channel in req.body.channels
+        @adapter.triggerEvent req.body.name, channel, parsedData
+
+      console.log "  [API] Received event #{req.rawBody}"
+      
+      res.send(200)
+
+    # -------------------------------- TEST METHODS --------------------------------
+
     @api.get '/', (req, res) -> 
       res.sendfile(__dirname + '/index.html')
 
@@ -19,17 +75,6 @@ module.exports = class APIServer
 
     @api.get '/pusher.js', (req, res) -> 
       res.sendfile(__dirname + '/pusher-2.1.js')
-
-    @api.post '/webhooks_test', (req, res) ->
-      console.log req.body
-      res.send(200)
-
-    # Event triggering api 
-    # console.log "/apps/#{@adapter.appId}/events"
-    @api.post "/apps/#{@adapter.appId}/events", (req, res) =>
-      # Just post whatever to test
-      @adapter.triggerEvent "female", "login.adult", {message: "hola"}
-      res.send(200)
 
     @api.post "/pusher_auth_test", (req, res) =>
       socketId    = req.body.socket_id
