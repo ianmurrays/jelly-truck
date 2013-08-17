@@ -21,7 +21,11 @@ Run the server
 What is working?
 ----------------
 
-Right now Jelly Truck only supports public channels. The web API to publish events isn't working, so you can't really do anything with it just yet. You can always check out the project's [milestones](https://github.com/ianmurrays/jelly-truck/issues/milestones) to see what's planned and what's already done.
+Practically all the basic functionality is there, except for most REST API methods (like listing channels and stuff like that). Presence and Private channels are supported. The last Pusher JS client that's supported is version 1.9, since they introduced [sockjs](https://github.com/sockjs/sockjs-node) (which is not supported by jelly-truck just yet).
+
+As it is, jelly-truck isn't really scalable since it stores everything in memory. Redis as a decoupled database is planned for future releases.
+
+You can always check out the project's [milestones](https://github.com/ianmurrays/jelly-truck/issues/milestones) to see what's planned and what's already done.
 
 How can I help?
 ---------------
