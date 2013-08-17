@@ -57,7 +57,11 @@
 <h2>
 <a name="what-is-working" class="anchor" href="#what-is-working"><span class="octicon octicon-link"></span></a>What is working?</h2>
 
-<p>Right now Jelly Truck only supports public channels. The web API to publish events isn't working, so you can't really do anything with it just yet. You can always check out the project's <a href="https://github.com/ianmurrays/jelly-truck/issues/milestones">milestones</a> to see what's planned and what's already done.</p>
+<p>Practically all the basic functionality is there, except for most REST API methods (like listing channels and stuff like that). Presence and Private channels are supported. The last Pusher JS client that's supported is version 1.9, since they introduced <a href="https://github.com/sockjs/sockjs-node">sockjs</a> (which is not supported by jelly-truck just yet).</p>
+
+<p>As it is, jelly-truck isn't really scalable since it stores everything in memory. Redis as a decoupled database is planned for future releases.</p>
+
+<p>You can always check out the project's <a href="https://github.com/ianmurrays/jelly-truck/issues/milestones">milestones</a> to see what's planned and what's already done.</p>
 
 <h2>
 <a name="how-can-i-help" class="anchor" href="#how-can-i-help"><span class="octicon octicon-link"></span></a>How can I help?</h2>
